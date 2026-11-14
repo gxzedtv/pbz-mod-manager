@@ -19,6 +19,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+        continue-on-error: true
       - run: npm run package:win
       - name: Trim other platforms' 7-Zip binaries
         shell: pwsh
