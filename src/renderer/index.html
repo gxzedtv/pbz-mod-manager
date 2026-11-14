@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' https: data:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'none'">
+    <title>PBZ Mod Manager</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app">
+        <nav class="rail" aria-label="Main">
+            <div class="brand">
+                <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true">
+                    <path d="M20 3 L23 17 L37 20 L23 23 L20 37 L17 23 L3 20 L17 17 Z" />
+                </svg>
+                <div>
+                    <div class="brand-name">Phantom Blade Zero</div>
+                    <div class="brand-sub">Mod Manager</div>
+                </div>
+            </div>
+            <ul class="nav">
+                <li><button class="nav-item" data-view="library" aria-current="page"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h10"/></svg><span>Library</span><b class="nav-count" id="count-library"></b></button></li>
+                <li><button class="nav-item" data-view="store"><svg viewBox="0 0 24 24"><path d="M4 9l2-5h12l2 5M4 9v11h16V9M4 9h16M9 13h6"/></svg><span>Nexus store</span></button></li>
+                <li><button class="nav-item" data-view="downloads"><svg viewBox="0 0 24 24"><path d="M12 4v11m0 0l-4-4m4 4l4-4M5 20h14"/></svg><span>Downloads</span><b class="nav-count" id="count-downloads"></b></button></li>
+                <li><button class="nav-item" data-view="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3M4.9 4.9l2.1 2.1m10 10l2.1 2.1M4.9 19.1L7 17m10-10l2.1-2.1"/></svg><span>Settings</span></button></li>
+            </ul>
+            <div class="rail-foot">
+                <div class="game-status" id="game-status"></div>
+                <button class="play" id="play"><svg viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg>Play</button>
+            </div>
+        </nav>
+
+        <main class="main">
+            <!-- LIBRARY -->
+            <section class="view" id="view-library">
+                <header class="view-head">
+                    <div>
+                        <h1>Library</h1>
+                        <p class="lede" id="library-lede">Mods installed through this manager.</p>
+                    </div>
+                    <div class="head-actions">
+                        <button class="btn" id="btn-import-folder">Import folder</button>
+                        <button class="btn btn-primary" id="btn-import">Import mods</button>
+                    </div>
+                </header>
+                <div id="setup-banner"></div>
+                <div id="featured"></div>
+                <div class="toolbar">
+                    <input class="search" id="library-search" type="search" placeholder="Filter installed mods" aria-label="Filter installed mods">
+                    <div class="toolbar-right">
+                        <button class="btn btn-quiet" id="btn-check-updates">Check for updates</button>
+                        <button class="btn btn-quiet" id="btn-enable-all">Enable all</button>
+                        <button class="btn btn-quiet" id="btn-disable-all">Disable all</button>
+                    </div>
+                </div>
+                <div class="mod-list" id="mod-list" role="list"></div>
+                <div id="unmanaged"></div>
+                <div class="drop-hint" id="drop-hint" hidden>
+                    <div>Drop to install</div>
+                    <small>.zip, .7z, .rar, .pak or a mod folder</small>
+                </div>
+            </section>
+
+            <!-- STORE -->
+            <section class="view" id="view-store" hidden>
+                <header class="view-head">
+                    <div>
+                        <h1>Nexus store</h1>
+                        <p class="lede" id="store-lede">Mods for Phantom Blade Zero on Nexus Mods.</p>
+                    </div>
+                    <div class="head-actions" id="nexus-account"></div>
+                </header>
+                <div class="toolbar">
+                    <form class="search-wrap" id="store-search-form">
+                        <input class="search" id="store-search" type="search" placeholder="Search Nexus mods" aria-label="Search Nexus mods">
+                    </form>
+                    <div class="tabs" role="tablist" id="store-sorts">
+                        <button role="tab" data-sort="trending" aria-selected="true">Popular</button>
+                        <button role="tab" data-sort="endorsed" aria-selected="false">Most endorsed</button>
+                        <button role="tab" data-sort="latest" aria-selected="false">Newest</button>
+                        <button role="tab" data-sort="updated" aria-selected="false">Recently updated</button>
+                    </div>
+                </div>
+                <div class="essentials" id="essentials"></div>
+                <div class="store-grid" id="store-grid"></div>
+                <div class="pager" id="store-pager"></div>
+            </section>
+
+            <!-- DOWNLOADS -->
+            <section class="view" id="view-downloads" hidden>
+                <header class="view-head">
+                    <div>
+                        <h1>Downloads</h1>
+                        <p class="lede">Files coming from Nexus Mods. They install automatically when finished.</p>
+                    </div>
+                    <div class="head-actions"><button class="btn" id="btn-clear-downloads">Clear finished</button></div>
+                </header>
+                <div id="download-list" class="download-list"></div>
+            </section>
+
+            <!-- SETTINGS -->
+            <section class="view" id="view-settings" hidden>
+                <header class="view-head">
+                    <div>
+                        <h1>Settings</h1>
+                        <p class="lede">Game folder, Nexus account and download handling.</p>
+                    </div>
+                </header>
+                <div class="settings">
+                    <section class="panel">
+                        <h2>Game folder</h2>
+                        <p class="hint">The folder that holds <code>ProjectPBZ</code>. In Steam: right-click Phantom Blade Zero › Manage › Browse local files.</p>
+                        <div class="path-row">
+                            <input id="game-path" class="field" readonly placeholder="Not set">
+                            <button class="btn" id="btn-detect">Find automatically</button>
+                            <button class="btn" id="btn-browse">Browse…</button>
+                        </div>
+                        <div id="detect-results"></div>
+                        <div class="diag-cta"><div><strong>Mods not showing up in game?</strong><span>Checks the loader, the game folder and the newest loader log.</span></div><button class="btn btn-primary" data-act="diagnose">Check my setup</button></div>
+                        <div id="frameworks" class="frameworks"></div>
+                        <div class="row-actions">
+                            <button class="btn btn-quiet" id="btn-open-game">Open game folder</button>
+                            <button class="btn btn-quiet" id="btn-open-logs">Open loader logs</button>
+                            <button class="btn btn-quiet" id="btn-redeploy">Re-apply all mods</button>
+                            <button class="btn btn-quiet btn-danger-text" id="btn-purge">Remove all mods from game</button>
+                        </div>
+                    </section>
+
+                    <section class="panel">
+                        <h2>Nexus Mods account</h2>
+                        <p class="hint">Paste your personal API key to see mod files and install from the store. Get it on Nexus Mods under Site preferences › API keys.</p>
+                        <div class="path-row">
+                            <input id="api-key" class="field" type="password" placeholder="Personal API key" autocomplete="off" spellcheck="false">
+                            <button class="btn btn-primary" id="btn-save-key">Save key</button>
+                            <button class="btn" id="btn-get-key">Get my key</button>
+                        </div>
+                        <div id="account-status" class="account-status"></div>
+                        <p class="hint">Premium members download straight into the manager. Free members click <em>Mod Manager Download</em> on the mod's page; the manager picks it up through the nxm link and installs it.</p>
+                    </section>
+
+                    <section class="panel">
+                        <h2>Downloads</h2>
+                        <label class="check"><input type="checkbox" id="set-nxm"> Handle "Mod Manager Download" links from Nexus (nxm://)</label>
+                        <label class="check"><input type="checkbox" id="set-watch"> Offer to install new mod archives that appear in my Downloads folder</label>
+                        <label class="check"><input type="checkbox" id="set-adult"> Show adult-content mods in the store</label>
+                    </section>
+
+                    <section class="panel">
+                        <h2>About</h2>
+                        <p class="hint" id="about"></p>
+                    </section>
+                </div>
+            </section>
+        </main>
+
+        <aside class="drawer" id="drawer" aria-hidden="true">
+            <button class="drawer-close" id="drawer-close" aria-label="Close">×</button>
+            <div class="drawer-body" id="drawer-body"></div>
+        </aside>
+        <div class="scrim" id="scrim" hidden></div>
+    </div>
+
+    <div class="statusbar" id="statusbar" role="status" aria-live="polite"></div>
+    <div class="toasts" id="toasts" aria-live="polite"></div>
+    <dialog id="confirm" class="confirm">
+        <form method="dialog">
+            <h3 id="confirm-title"></h3>
+            <p id="confirm-text"></p>
+            <div class="confirm-actions">
+                <button value="cancel" class="btn">Cancel</button>
+                <button value="ok" class="btn btn-primary" id="confirm-ok">OK</button>
+            </div>
+        </form>
+    </dialog>
+    <script src="app.js"></script>
+</body>
+</html>
